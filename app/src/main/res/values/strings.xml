@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">DJK Transcriptor</string>
+    <string name="app_tagline">Your Voice, Your Commands</string>
+    <string name="google_app_id">Google Speech API</string>
+
+    <!-- Splash -->
+    <string name="splash_loading">Initializing DJK Transcriptor…</string>
+    <string name="splash_powered_by">Powered by Etienne Tech</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_welcome">Bienvenue sur DJK Transcriptor</string>
+    <string name="onboarding_desc">Contrôlez votre téléphone avec votre voix.\nParlez naturellement, DJK exécute.</string>
+    <string name="onboarding_mic_title">Accès Microphone</string>
+    <string name="onboarding_mic_desc">L\'app a besoin du microphone pour écouter vos commandes vocales.</string>
+    <string name="onboarding_storage_title">Accès Stockage</string>
+    <string name="onboarding_storage_desc">L\'app a besoin d\'accéder au stockage pour gérer vos fichiers.</string>
+    <string name="onboarding_get_started">Commencer</string>
+    <string name="onboarding_next">Suivant</string>
+    <string name="onboarding_skip">Passer</string>
+    <string name="onboarding_grant">Autoriser</string>
+
+    <!-- Main -->
+    <string name="main_title">DJK Transcriptor</string>
+    <string name="main_subtitle">Etienne Tech</string>
+    <string name="main_tap_to_speak">Appuyez pour parler</string>
+    <string name="main_listening">Écoute en cours…</string>
+    <string name="main_processing">Traitement en cours…</string>
+    <string name="main_ready">Prêt pour vos commandes</string>
+    <string name="main_voice_hint">Dites quelque chose comme :\n\"Ouvre WhatsApp\"\n\"Supprime le fichier photo.jpg\"\n\"Lance une vidéo\"</string>
+
+    <!-- Commands hints -->
+    <string name="hint_open_app">\"Ouvre [nom de l\'app]\"</string>
+    <string name="hint_close_app">\"Ferme [nom de l\'app]\"</string>
+    <string name="hint_delete_file">\"Supprime [nom du fichier]\"</string>
+    <string name="hint_play_video">\"Joue la vidéo [nom]\"</string>
+    <string name="hint_play_music">\"Joue la musique [nom]\"</string>
+    <string name="hint_call">\"Appelle [contact]\"</string>
+    <string name="hint_sms">\"Envoie un SMS à [contact]\"</string>
+    <string name="hint_bluetooth">\"Active Bluetooth\" / \"Désactive Bluetooth\"</string>
+    <string name="hint_wifi">\"Active WiFi\" / \"Désactive WiFi\"</string>
+    <string name="hint_flashlight">\"Allume la lampe\" / \"Éteins la lampe\"</string>
+    <string name="hint_volume">\"Monte le volume\" / \"Baisse le volume\"</string>
+    <string name="hint_time">\"Quelle heure est-il ?\"</string>
+    <string name="hint_battery">\"Niveau de batterie\"</string>
+    <string name="hint_camera">\"Ouvre la caméra\"</string>
+    <string name="hint_search">\"Cherche [query] sur internet\"</string>
+
+    <!-- Feedback -->
+    <string name="feedback_executed">Commande exécutée avec succès</string>
+    <string name="feedback_not_understood">Commande non reconnue. Réessayez.</string>
+    <string name="feedback_no_microphone">Microphone non disponible</string>
+    <string name="feedback_permission_denied">Permission refusée</string>
+    <string name="feedback_error">Une erreur est survenue</string>
+
+    <!-- About -->
+    <string name="about_title">À propos</string>
+    <string name="about_version">Version %1$s</string>
+    <string name="about_developed_by">Développé par</string>
+    <string name="about_company">Etienne Tech</string>
+    <string name="about_description">DJK Transcriptor est une application de contrôle vocal avancée qui vous permet d\'interagir avec votre téléphone uniquement par la voix.</string>
+    <string name="about_rights">© 2024 Etienne Tech. Tous droits réservés.</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Paramètres</string>
+    <string name="settings_language">Langue de reconnaissance</string>
+    <string name="settings_vibration">Vibration</string>
+    <string name="settings_sound_feedback">Son de confirmation</string>
+    <string name="settings_continuous_listening">Écoute continue</string>
+    <string name="settings_sensitivity">Sensibilité du microphone</string>
+    <string name="settings_auto_launch">Lancement automatique</string>
+
+    <!-- History -->
+    <string name="history_title">Historique</string>
+    <string name="history_empty">Aucune commande enregistrée</string>
+    <string name="history_clear">Effacer l\'historique</string>
+    <string name="history_clear_confirm">Voulez-vous vraiment effacer tout l\'historique ?</string>
+
+    <!-- Common -->
+    <string name="yes">Oui</string>
+    <string name="no">Non</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Annuler</string>
+    <string name="confirm">Confirmer</string>
+    <string name="retry">Réessayer</string>
+    <string name="close">Fermer</string>
+</resources>
