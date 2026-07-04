@@ -1,4 +1,12 @@
-name: Build DJK Transcriptor APK
+# ============================================================
+# DJK Transcriptor - CI Build Workflow
+# Developed by Etienne Tech
+#
+# Ce workflow se déclenche à chaque push/PR sur main/master
+# Il compile les APK Debug et Release, puis les upload en artifacts
+# ============================================================
+
+name: 🏗️ Build APK
 
 on:
   push:
@@ -6,71 +14,188 @@ on:
   pull_request:
     branches: [ main, master ]
   workflow_dispatch:
+    inputs:
+      build_type:
+        description: 'Type de build'
+        required: false
+        default: 'both'
+        type: choice
+        options:
+          - both
+          - debug
+          - release
+
+# Annuler les builds en cours si un nouveau push arrive
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
+  # ==========================================
+  # JOB 1 : Build des APK
+  # ==========================================
   build:
-    name: Build & Generate APK
+    name: 🔨 Build APK
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     steps:
-      - name: Checkout code
+      # --- Étape 1 : Récupérer le code ---
+      - name: 📥 Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up JDK 17
+      # --- Étape 2 : Configurer Java 17 ---
+      - name: ☕ Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
           cache: gradle
 
-      - name: Grant execute permission for gradlew
+      # --- Étape 3 : Permissions gradlew ---
+      - name: 🔐 Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build Debug APK
-        run: ./gradlew assembleDebug
+      # --- Étape 4 : Cache Gradle ---
+      - name: 📦 Cache Gradle packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
 
-      - name: Build Release APK
-        run: ./gradlew assembleRelease
+      # --- Étape 5 : Build Debug APK ---
+      - name: 🔨 Build Debug APK
+        if: ${{ github.event.inputs.build_type == 'both' || github.event.inputs.build_type == 'debug' || github.event.inputs.build_type == '' }}
+        run: ./gradlew assembleDebug --stacktrace --no-daemon
 
-      - name: Upload Debug APK
+      # --- Étape 6 : Build Release APK ---
+      - name: 🔨 Build Release APK
+        if: ${{ github.event.inputs.build_type == 'both' || github.event.inputs.build_type == 'release' || github.event.inputs.build_type == '' }}
+        run: ./gradlew assembleRelease --stacktrace --no-daemon
+
+      # --- Étape 7 : Vérifier les APK générés ---
+      - name: ✅ Verify APK files
+        run: |
+          echo "=== APK Debug ==="
+          ls -lh app/build/outputs/apk/debug/ 2>/dev/null || echo "Pas de debug APK"
+          echo ""
+          echo "=== APK Release ==="
+          ls -lh app/build/outputs/apk/release/ 2>/dev/null || echo "Pas de release APK"
+
+      # --- Étape 8 : Upload Debug APK ---
+      - name: 📤 Upload Debug APK
+        if: ${{ github.event.inputs.build_type == 'both' || github.event.inputs.build_type == 'debug' || github.event.inputs.build_type == '' }}
         uses: actions/upload-artifact@v4
         with:
-          name: DJK-Transcriptor-Debug
+          name: DJK-Transcriptor-Debug-${{ github.sha }}
           path: app/build/outputs/apk/debug/*.apk
           retention-days: 30
+          if-no-files-found: warn
 
-      - name: Upload Release APK
+      # --- Étape 9 : Upload Release APK ---
+      - name: 📤 Upload Release APK
+        if: ${{ github.event.inputs.build_type == 'both' || github.event.inputs.build_type == 'release' || github.event.inputs.build_type == '' }}
         uses: actions/upload-artifact@v4
         with:
-          name: DJK-Transcriptor-Release
+          name: DJK-Transcriptor-Release-${{ github.sha }}
           path: app/build/outputs/apk/release/*.apk
           retention-days: 90
+          if-no-files-found: warn
 
+      # --- Étape 10 : Résumé du build ---
+      - name: 📋 Build Summary
+        if: always()
+        run: |
+          echo "## 🏗️ Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Info | Valeur |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| **Commit** | \`${{ github.sha }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Branch** | \`${{ github.ref_name }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Trigger** | \`${{ github.event_name }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Runner** | \`${{ runner.os }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -f "app/build/outputs/apk/debug/app-debug.apk" ]; then
+            size=$(ls -lh app/build/outputs/apk/debug/app-debug.apk | awk '{print $5}')
+            echo "✅ **Debug APK** : $size" >> $GITHUB_STEP_SUMMARY
+          fi
+          if [ -f "app/build/outputs/apk/release/app-release.apk" ]; then
+            size=$(ls -lh app/build/outputs/apk/release/app-release.apk | awk '{print $5}')
+            echo "✅ **Release APK** : $size" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "*DJK Transcriptor - Developed by Etienne Tech*" >> $GITHUB_STEP_SUMMARY
+
+  # ==========================================
+  # JOB 2 : Lint Check
+  # ==========================================
   lint:
-    name: Lint Check
+    name: 🔍 Lint Check
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
-      - name: Checkout code
+      - name: 📥 Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up JDK 17
+      - name: ☕ Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
           cache: gradle
 
-      - name: Grant execute permission for gradlew
+      - name: 🔐 Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Run Lint
-        run: ./gradlew lint
+      - name: 🔍 Run Android Lint
+        run: ./gradlew lint --stacktrace --no-daemon
 
-      - name: Upload Lint Report
+      - name: 📤 Upload Lint Report
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: Lint-Report
           path: app/build/reports/lint-results*.html
           retention-days: 30
+          if-no-files-found: ignore
+
+  # ==========================================
+  # JOB 3 : Vérification du code
+  # ==========================================
+  verify:
+    name: ✅ Code Verification
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: ☕ Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: 🔐 Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: 🔍 Compile Kotlin (sans APK)
+        run: ./gradlew compileDebugKotlin --stacktrace --no-daemon
+
+      - name: 📋 Verification Summary
+        if: success()
+        run: |
+          echo "## ✅ Code Verification Passed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Tous les fichiers Kotlin compilent sans erreur." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "*DJK Transcriptor - Etienne Tech*" >> $GITHUB_STEP_SUMMARY
